@@ -1,0 +1,13 @@
+{
+  "name": "Chromatic Seal #303",
+  "token_id": "303",
+  "contract": "0x3333333333333333333333333333333333333333",
+  "collection": "TraitSeal Semantic Fixtures",
+  "attributes": [
+    { "value": "Cobalt", "trait_type": "Palette" },
+    { "value": "1/1", "trait_type": "Edition" },
+    { "value": "Ink", "trait_type": "Background" }
+  ],
+  "image": "ipfs://bafybeiverifiedimagecid000000000000000000000000000000001",
+  "description": "An immutable provenance fixture."
+}

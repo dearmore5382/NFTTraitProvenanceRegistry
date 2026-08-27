@@ -1,0 +1,13 @@
+{
+  "collection": "TraitSeal Semantic Fixtures",
+  "contract": "0x3333333333333333333333333333333333333333",
+  "token_id": "304",
+  "name": "Chromatic Seal #304",
+  "description": "A value-bearing rarity fixture.",
+  "image": "ipfs://bafybeireplacedimagecid000000000000000000000000000000001",
+  "attributes": [
+    { "trait_type": "Rarity", "value": "Common" },
+    { "trait_type": "Edition", "value": "Open" },
+    { "trait_type": "Palette", "value": "Grey" }
+  ]
+}

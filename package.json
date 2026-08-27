@@ -1,0 +1,17 @@
+{
+  "name": "traitseal-registry",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "pytest -q",
+    "test:e2e": "node verification/e2e-lifecycle.mjs"
+  },
+  "dependencies": {
+    "@ardrive/turbo-sdk": "^1.42.0",
+    "genlayer-js": "^1.1.8",
+    "vite": "^5.4.10"
+  }
+}
