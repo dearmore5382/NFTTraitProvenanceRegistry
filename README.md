@@ -24,6 +24,14 @@ The app runs on localhost and uses `genlayer-js` with the `studionet` chain. It
 requires a funded MetaMask account for writes and switches to chain `61999` before
 signing. No deployment or production hosting is automated by this repository.
 
+## Live frontend
+
+The current static frontend deployment is available at
+https://da5e2d6b.nft-trait-provenance-registry.pages.dev. It is a Cloudflare Pages
+deployment of the Vite `dist/` bundle. The app is configured for the deployed
+Studionet contract through the build-time `VITE_CONTRACT_ADDRESS`; wallet writes
+still require a user-funded MetaMask account on chain `61999`.
+
 ## Contract checks
 
 ```powershell
