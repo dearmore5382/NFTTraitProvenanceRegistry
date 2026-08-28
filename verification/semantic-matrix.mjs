@@ -19,6 +19,8 @@ const verifiedCurrent = base + "verified-current.json";
 const changedRef = base + "changed-reference.json";
 const changedCurrent = base + "changed-current.json";
 const hash = "sha256:4c94e3d576c7a73986e6af6719fe8b84d169a9793ecd8d8af9b89b4087836b3c";
+// This is the NFT collection identifier embedded in the immutable fixture JSON;
+// it is not the deployed TraitSeal registry address.
 const nft = "0x5A880B5Ee30E2A3A24E5DaF4b084dc0A4c3fC75c";
 
 async function view(method, args) { const value = await read.readContract({ address, functionName: method, args, stateStatus: "accepted" }); console.log(`${method}(${args.join(",")}) -> ${value}`); return String(value); }
