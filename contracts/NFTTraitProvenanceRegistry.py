@@ -75,6 +75,12 @@ class NFTTraitProvenanceRegistry(gl.Contract):
             return "INVALID_URL"
         return "OK"
 
+    def _authenticated_metadata_url(self, value: str) -> str:
+        text = str(value).strip()
+        if text.startswith("ipfs://") or text.startswith("ar://"):
+            return "OK"
+        return "AUTHENTICATED_SOURCE_REQUIRED"
+
     def _valid_hash(self, value: str) -> str:
         text = str(value).strip()
         if len(text) < 32 or len(text) > 160 or " " in text:
@@ -135,6 +141,8 @@ class NFTTraitProvenanceRegistry(gl.Contract):
             return "TOKEN_ID_TOO_LARGE"
         if self._valid_url(metadata_url) != "OK":
             return "INVALID_METADATA_URL"
+        if self._authenticated_metadata_url(metadata_url) != "OK":
+            return "AUTHENTICATED_SOURCE_REQUIRED"
         if self._valid_hash(metadata_hash) != "OK":
             return "INVALID_METADATA_HASH"
         if self._valid_text(image_ref, u256(500)) != "OK":
@@ -225,13 +233,13 @@ class NFTTraitProvenanceRegistry(gl.Contract):
 
             prompt = (
                 "Act as an NFT metadata provenance inspector. Compare the immutable reference and current metadata. "
-                "Return ONLY JSON with exactly these string fields: source, authority, identity, traits, image, duplicate, misleading. "
-                "Allowed values: source=AVAILABLE|UNAVAILABLE; authority=MATCH|MISMATCH|UNKNOWN; "
+                "Return ONLY JSON with exactly these string fields: source, reference_hash_matches, authority, identity, traits, image, duplicate, misleading. "
+                "Allowed values: source=AVAILABLE|UNAVAILABLE; reference_hash_matches=TRUE|FALSE|UNKNOWN; authority=MATCH|MISMATCH|UNKNOWN; "
                 "identity=SAME|DIFFERENT|UNKNOWN; traits=SAME|NON_MATERIAL|MATERIAL|UNKNOWN; "
                 "image=SAME|REPLACED|UNKNOWN; duplicate=NONE|SUSPECTED|UNKNOWN; misleading=NO|YES|UNKNOWN. "
                 "Formatting, JSON key order, trait order, gateway URL, and case-only changes are NON_MATERIAL. "
                 "A removed or altered value-bearing trait is MATERIAL. An image is REPLACED only when its content identity differs, "
-                "not merely because the gateway URL differs. Mark UNKNOWN when evidence cannot support a fact. "
+                "not merely because the gateway URL differs. Independently canonicalize the fetched reference JSON and verify its digest against the locked hash; do not infer this from prompt text. Mark UNKNOWN when evidence cannot support a fact. "
                 "Collection=" + collection_name + "; contract=" + collection_address + "; authority=" + authority
                 + "; token_id=" + str(token_id) + "; locked_hash=" + locked_hash + "; locked_image=" + image_ref
                 + "; registered_traits=" + trait_manifest + "; reference=" + reference_content
@@ -246,12 +254,13 @@ class NFTTraitProvenanceRegistry(gl.Contract):
                     "identity": str(data["identity"]),
                     "image": str(data["image"]),
                     "misleading": str(data["misleading"]),
+                    "reference_hash_matches": str(data["reference_hash_matches"]),
                     "source": str(data["source"]),
                     "traits": str(data["traits"]),
                 }
                 return json.dumps(bounded, sort_keys=True, separators=(",", ":"))
             except Exception:
-                return "{\"authority\":\"UNKNOWN\",\"duplicate\":\"UNKNOWN\",\"identity\":\"UNKNOWN\",\"image\":\"UNKNOWN\",\"misleading\":\"UNKNOWN\",\"source\":\"UNAVAILABLE\",\"traits\":\"UNKNOWN\"}"
+                return "{\"authority\":\"UNKNOWN\",\"duplicate\":\"UNKNOWN\",\"identity\":\"UNKNOWN\",\"image\":\"UNKNOWN\",\"misleading\":\"UNKNOWN\",\"reference_hash_matches\":\"UNKNOWN\",\"source\":\"UNAVAILABLE\",\"traits\":\"UNKNOWN\"}"
 
         facts_json = gl.eq_principle.strict_eq(inspect)
         try:
@@ -263,6 +272,7 @@ class NFTTraitProvenanceRegistry(gl.Contract):
             image = facts["image"]
             duplicate = facts["duplicate"]
             misleading = facts["misleading"]
+            reference_hash_matches = facts["reference_hash_matches"]
         except Exception:
             return "INVALID_CONSENSUS_OUTPUT"
 
@@ -280,9 +290,11 @@ class NFTTraitProvenanceRegistry(gl.Contract):
             return "INVALID_CONSENSUS_OUTPUT"
         if misleading not in ("NO", "YES", "UNKNOWN"):
             return "INVALID_CONSENSUS_OUTPUT"
+        if reference_hash_matches not in ("TRUE", "FALSE", "UNKNOWN"):
+            return "INVALID_CONSENSUS_OUTPUT"
 
         verdict = "VERIFIED"
-        if source == "UNAVAILABLE" or authority_result == "UNKNOWN" or identity == "UNKNOWN" or traits == "UNKNOWN" or image == "UNKNOWN" or duplicate == "UNKNOWN" or misleading == "UNKNOWN":
+        if source == "UNAVAILABLE" or reference_hash_matches != "TRUE" or authority_result == "UNKNOWN" or identity == "UNKNOWN" or traits == "UNKNOWN" or image == "UNKNOWN" or duplicate == "UNKNOWN" or misleading == "UNKNOWN":
             verdict = "UNVERIFIABLE"
         elif authority_result == "MISMATCH" or identity == "DIFFERENT" or traits == "MATERIAL" or image == "REPLACED" or duplicate == "SUSPECTED" or misleading == "YES":
             verdict = "CHANGED"
@@ -322,4 +334,3 @@ class NFTTraitProvenanceRegistry(gl.Contract):
     @gl.public.view
     def get_counts(self) -> str:
         return str(self.collection_count) + "|" + str(self.snapshot_count) + "|" + str(self.verification_count)
-
