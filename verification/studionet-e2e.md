@@ -90,3 +90,26 @@ E2E COMPLETION GATE: PARTIAL
 
 Do not describe this release as proving `VERIFIED` and `CHANGED` semantics until
 the same scenarios run with a provider-fetchable immutable fixture.
+
+## Latest honest evidence (2026-08-28)
+
+Deployment tested: `0x4561F220e500e65201cE5aBc9867e17a304664ae`.
+The four metadata fixtures were published in commit
+`6197dfaa7f5de6c56bd8f5a4859d3551515470eb` and loaded through GitHub Raw URLs
+containing that commit SHA. The expanded immutable-source validation accepted
+those URLs and the lifecycle/adversarial checks passed.
+
+| Scenario | Transaction | Final result |
+| --- | --- | --- |
+| Verify token 303 (unchanged) | `0x105fcbb4ccce3442c4b883f87e723a11161be2b33cc981765cb8d9d9d7cb60a2` | `VERIFIED` |
+| Verify token 304 (material rewrite candidate) | `0x6240432bb4b5da7aaa5c178289bbe788cbd6e94e40ba42064736b6006b2d9656` | `UNVERIFIABLE` |
+
+Authoritative readback for verification ID `2` recorded
+`source=AVAILABLE`, `authority=MATCH`, `identity=SAME`, `traits=SAME`,
+`image=SAME`, `duplicate=NONE`, `misleading=NO`, and
+`reference_source_authenticated=TRUE`. This is a genuine `VERIFIED` proof.
+
+Verification ID `3` recorded `source=UNAVAILABLE` and all consequential facts
+as `UNKNOWN`, so the contract correctly returned `UNVERIFIABLE`. This release
+does **not** claim a live `CHANGED` proof. The result is retained as fail-closed
+negative evidence, not hidden or relabeled.
