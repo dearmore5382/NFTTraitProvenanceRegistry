@@ -1,5 +1,31 @@
 # TraitSeal Studionet E2E
 
+## Current submission evidence (2026-08-28)
+
+Current deployment under review: `0x4561F220e500e65201cE5aBc9867e17a304664ae`.
+This is the authoritative result for resubmission; older deployments below are
+historical records and must not be used as the current contract address.
+
+| Gate | Result |
+| --- | --- |
+| Lifecycle and adversarial checks | PASS |
+| Immutable GitHub Raw commit-pinned source accepted | PASS |
+| Semantic unchanged fixture | `VERIFIED` PASS |
+| Semantic changed fixture | `UNVERIFIABLE` (source unavailable; no `CHANGED` claim) |
+
+Verified receipt: `0x105fcbb4ccce3442c4b883f87e723a11161be2b33cc981765cb8d9d9d7cb60a2`.
+The contract readback recorded `source=AVAILABLE`, `authority=MATCH`,
+`identity=SAME`, `traits=SAME`, `image=SAME`, `duplicate=NONE`, and
+`misleading=NO`. The changed candidate receipt
+`0x6240432bb4b5da7aaa5c178289bbe788cbd6e94e40ba42064736b6006b2d9656`
+finalized as `UNVERIFIABLE` because validators could not fetch that current
+source. This is retained as fail-closed negative evidence.
+
+The four fixtures are pinned to GitHub commit
+`6197dfaa7f5de6c56bd8f5a4859d3551515470eb`.
+
+---
+
 Status: `LIFECYCLE PASS` / `ADVERSARIAL MATRIX PASS` / `LIVE_UNVERIFIABLE_NEGATIVE_PASS`
 
 - Network: Studionet, chain ID `61999`
