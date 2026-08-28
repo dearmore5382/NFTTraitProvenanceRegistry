@@ -79,6 +79,26 @@ class NFTTraitProvenanceRegistry(gl.Contract):
         text = str(value).strip()
         if text.startswith("ipfs://") or text.startswith("ar://"):
             return "OK"
+        if text.startswith("https://raw.githubusercontent.com/"):
+            for segment in text.split("/"):
+                if len(segment) == 40:
+                    valid = True
+                    for char in segment.lower():
+                        if char not in "0123456789abcdef":
+                            valid = False
+                    if valid:
+                        return "OK"
+        if text.startswith("https://cdn.jsdelivr.net/gh/"):
+            for segment in text.split("/"):
+                if "@" in segment:
+                    commit = segment.split("@", 1)[1]
+                    if len(commit) == 40:
+                        valid = True
+                        for char in commit.lower():
+                            if char not in "0123456789abcdef":
+                                valid = False
+                        if valid:
+                            return "OK"
         return "AUTHENTICATED_SOURCE_REQUIRED"
 
     def _valid_hash(self, value: str) -> str:
@@ -220,14 +240,22 @@ class NFTTraitProvenanceRegistry(gl.Contract):
         trait_manifest = self.snapshot_trait_manifests[snapshot_id]
 
         def inspect() -> str:
+            def gateway_url(value: str) -> str:
+                text = str(value).strip()
+                if text.startswith("ar://"):
+                    return "https://arweave.net/" + text[5:]
+                if text.startswith("ipfs://"):
+                    return "https://gateway.pinata.cloud/ipfs/" + text[7:]
+                return text
+
             reference_content = "[UNAVAILABLE]"
             current_content = "[UNAVAILABLE]"
             try:
-                reference_content = gl.nondet.web.get(reference_url).body.decode("utf-8")[:5000]
+                reference_content = gl.nondet.web.get(gateway_url(reference_url)).body.decode("utf-8")[:5000]
             except Exception:
                 reference_content = "[UNAVAILABLE]"
             try:
-                current_content = gl.nondet.web.get(current_url).body.decode("utf-8")[:5000]
+                current_content = gl.nondet.web.get(gateway_url(current_url)).body.decode("utf-8")[:5000]
             except Exception:
                 current_content = "[UNAVAILABLE]"
 
@@ -239,7 +267,7 @@ class NFTTraitProvenanceRegistry(gl.Contract):
                 "image=SAME|REPLACED|UNKNOWN; duplicate=NONE|SUSPECTED|UNKNOWN; misleading=NO|YES|UNKNOWN. "
                 "Formatting, JSON key order, trait order, gateway URL, and case-only changes are NON_MATERIAL. "
                 "A removed or altered value-bearing trait is MATERIAL. An image is REPLACED only when its content identity differs, "
-                "not merely because the gateway URL differs. Independently canonicalize the fetched reference JSON and verify its digest against the locked hash; do not infer this from prompt text. Mark UNKNOWN when evidence cannot support a fact. "
+                "not merely because the gateway URL differs. The locked ipfs:// CID or ar:// transaction is the immutable content binding; do not require an LLM to invent a cryptographic hash claim. Keep reference_hash_matches as an optional diagnostic and mark it UNKNOWN when the runtime cannot calculate it. Mark UNKNOWN when evidence cannot support a consequential semantic fact. "
                 "Collection=" + collection_name + "; contract=" + collection_address + "; authority=" + authority
                 + "; token_id=" + str(token_id) + "; locked_hash=" + locked_hash + "; locked_image=" + image_ref
                 + "; registered_traits=" + trait_manifest + "; reference=" + reference_content
@@ -293,8 +321,40 @@ class NFTTraitProvenanceRegistry(gl.Contract):
         if reference_hash_matches not in ("TRUE", "FALSE", "UNKNOWN"):
             return "INVALID_CONSENSUS_OUTPUT"
 
+        def is_immutable_reference(value: str) -> str:
+            text = str(value).strip()
+            if text.startswith("ipfs://") or text.startswith("ar://"):
+                return "TRUE"
+            # A GitHub Raw URL is immutable only when its path contains a full commit SHA.
+            if text.startswith("https://raw.githubusercontent.com/"):
+                for segment in text.split("/"):
+                    if len(segment) == 40:
+                        valid = True
+                        for char in segment.lower():
+                            if char not in "0123456789abcdef":
+                                valid = False
+                        if valid:
+                            return "TRUE"
+            # jsDelivr's @<commit-sha> form is likewise pinned to immutable content.
+            if text.startswith("https://cdn.jsdelivr.net/gh/"):
+                for segment in text.split("/"):
+                    if "@" in segment:
+                        commit = segment.split("@", 1)[1]
+                        if len(commit) == 40:
+                            valid = True
+                            for char in commit.lower():
+                                if char not in "0123456789abcdef":
+                                    valid = False
+                            if valid:
+                                return "TRUE"
+            return "FALSE"
+
+        reference_source_authenticated = is_immutable_reference(reference_url)
+        facts["reference_source_authenticated"] = reference_source_authenticated
+        facts_json = json.dumps(facts, sort_keys=True, separators=(",", ":"))
+
         verdict = "VERIFIED"
-        if source == "UNAVAILABLE" or reference_hash_matches != "TRUE" or authority_result == "UNKNOWN" or identity == "UNKNOWN" or traits == "UNKNOWN" or image == "UNKNOWN" or duplicate == "UNKNOWN" or misleading == "UNKNOWN":
+        if source == "UNAVAILABLE" or reference_source_authenticated != "TRUE" or authority_result == "UNKNOWN" or identity == "UNKNOWN" or traits == "UNKNOWN" or image == "UNKNOWN" or duplicate == "UNKNOWN" or misleading == "UNKNOWN":
             verdict = "UNVERIFIABLE"
         elif authority_result == "MISMATCH" or identity == "DIFFERENT" or traits == "MATERIAL" or image == "REPLACED" or duplicate == "SUSPECTED" or misleading == "YES":
             verdict = "CHANGED"

@@ -6,6 +6,7 @@ ALLOWED = {
     "image": {"SAME", "REPLACED", "UNKNOWN"},
     "duplicate": {"NONE", "SUSPECTED", "UNKNOWN"},
     "misleading": {"NO", "YES", "UNKNOWN"},
+    "reference_source_authenticated": {"TRUE", "FALSE"},
 }
 
 
@@ -14,7 +15,7 @@ def derive(facts):
         return "INVALID_CONSENSUS_OUTPUT"
     if any(facts[key] not in values for key, values in ALLOWED.items()):
         return "INVALID_CONSENSUS_OUTPUT"
-    if facts["source"] == "UNAVAILABLE" or "UNKNOWN" in facts.values():
+    if facts["source"] == "UNAVAILABLE" or facts["reference_source_authenticated"] != "TRUE" or "UNKNOWN" in facts.values():
         return "UNVERIFIABLE"
     if (
         facts["authority"] == "MISMATCH"
@@ -26,4 +27,3 @@ def derive(facts):
     ):
         return "CHANGED"
     return "VERIFIED"
-

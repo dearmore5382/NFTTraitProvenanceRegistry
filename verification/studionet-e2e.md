@@ -1,46 +1,92 @@
 # TraitSeal Studionet E2E
 
-Status: `LIFECYCLE PASS` / `LIVE PINATA NEGATIVE PROOF PASS` / `SEMANTIC RESULT UNVERIFIABLE (EXPECTED)`
+Status: `LIFECYCLE PASS` / `ADVERSARIAL MATRIX PASS` / `LIVE_UNVERIFIABLE_NEGATIVE_PASS`
 
 - Network: Studionet, chain ID `61999`
-- Contract: `0x7cd0582D385e7225d101012FD6e258a828528266`
+- Contract: `0x3Fe4266bE0e33cF4545A50dD98809e91661f40cd`
+- Explorer: `https://explorer-studio.genlayer.com/address/0x3Fe4266bE0e33cF4545A50dD98809e91661f40cd`
 - Script: `verification/e2e-lifecycle.mjs`
 - Actors: wallet A creator `0x736A168247e3f0C52F7907c9a8fDac572DF9c8bB`; wallet B creator/requester `0xA63DE24e30C88FB1019E8956654730316e36eDBE`
-- Source used for the fixture: `https://raw.githubusercontent.com/dearmore5382/DAOProposalContextVerifier/main/README.md`
+- Immutable fixture reference: `ipfs://bafybeifrozenmetadatafixture000000000000000000000000000000001`
+
+The successful run started from `get_counts() -> 3|0|0`. IDs `0..2` were created
+by interrupted fixture-preflight attempts and are not claimed as lifecycle evidence.
+The completed run uses collection IDs `3/4`, snapshot IDs `0/1`, and verification
+IDs `0/1`.
 
 ## Scenario receipts
 
 | Step | Transaction | Result |
 | --- | --- | --- |
-| Register collection A | `0x6ce0f5240745bf367c4e7597fa3e2064d01a3654656c1aae1954c6d27a2e7e67` | ID `0`, FINALIZED |
-| Register collection B | `0x5c6f1fe6109a8092008ceeb7d0afe5e092a8c5a68619a8be1419647cb3236a49` | ID `1`, FINALIZED |
-| Freeze collection A | `0x1b9d29460f611b4c75c3360789d3e8a58c81649cc23c25aadf446fd4804bb91d` | `FROZEN` |
-| Freeze collection B | `0x7c4fa2be941152151257f4f363c04e4bf4e3df56d204d558ad391aa5ee93a088` | `FROZEN` |
-| Register snapshot A (token 101) | `0xdf4367bc92c4c60128f6f8173dd998ff7ccbf79bf42a1b135e53e523c6a7ba5a` | ID `0`, FINALIZED |
-| Register snapshot B (token 202) | `0x6a50754fc9bff92663b29b4ade2c35b0eea8f052df41d140a56f62740e461dab` | ID `1`, FINALIZED |
-| Freeze snapshot A | `0xdbcf8edb739b1915957a7351566868058b0c7ba11d7e61af7fd46adff83b35f0` | `FROZEN` |
-| Freeze snapshot B | `0xea3199b0824d3de193a5d702b40f14421865bff00ed71ea403050f00f03b4271` | `FROZEN` |
-| Wallet B submits check A | `0xcc48d99acecad0d82ceaf77f05967cd257049225dfed514d1821315b84476c8f` | verification ID `0` |
-| Wallet A submits check B | `0x680dabb560e8cfcee39ac5f44aed9d710c1f2850f4c2bcfef73a236ae49f341a` | verification ID `1` |
-| Verify A | `0xc3f05643136f2109b8d9123e42bf5f27011c952d7d52bfcc7fa0f78d405a583b` | `UNVERIFIABLE` |
-| Verify B | `0x9cbdce85cb7057a6b1c5c8a4c53732841daa6902c0d1016f201600560dad1aa7` | `UNVERIFIABLE` |
+| Register collection A | `0x2cc9ea1290ed15d226d0efa55d2c10fa1237f20dec1d59536785e4af0cd5ac80` | ID `3`, FINALIZED |
+| Register collection B | `0xb88c4fa8be46e147ab86e2cdf46f66ca83eed2d610a0b14b69582d67f8c7589f` | ID `4`, FINALIZED |
+| Freeze collection A | `0x1d09ab6ddf57366bb9c4758d4286281c829f50caaeb852e861ef0e5f92dc5404` | `FROZEN` |
+| Freeze collection B | `0x33f5ba2581ae217d8ca46893230eaabfc98714508090534f1d587207fce2d4df` | `FROZEN` |
+| Register snapshot A (token 101) | `0x46bbc7b4fa2632e915ce12907fc7dcaaabd7ed801f028641931f7e1faee156a0` | ID `0`, FINALIZED |
+| Register snapshot B (token 202) | `0x049666ec37ec8659d1fde49cf2eed036ccd157cc63a5dae5c8931260ebeb4954` | ID `1`, FINALIZED |
+| Freeze snapshot A | `0x25d93ed9e27de2f57614c74565655c2eff491174da0a18d1d9c54953b0893bb8` | `FROZEN` |
+| Freeze snapshot B | `0x1ccc3277904ed381a31c674ac01f572a7c949042a8477e9a920f22176544e71c` | `FROZEN` |
+| Wallet B submits check A | `0x1462786d346e6d8b6ffab81cc0b5eea3f68da0cdb606e698e1de1886577e9385` | verification ID `0` |
+| Wallet A submits check B | `0x45f782b1896ed205f62ec1b0e2f2a935db65e04355353fd1545f63689e26d17d` | verification ID `1` |
+| Verify A | `0x6559319a3c0c6465e5c6eed160842792b270184c053f8f0eda11bd2859391cf6` | `UNVERIFIABLE`, FINALIZED |
+| Verify B | `0x18281a6a726373ed4fe6b99f719edab5d013930d5461d35a2fb6f212ef96d1d8` | `UNVERIFIABLE`, FINALIZED |
 
 ## Authoritative readback
 
 ```text
-lookup_snapshot(0,101) -> 0
-lookup_snapshot(1,202) -> 1
-get_verification(0) -> 0|0xA63DE24e30C88FB1019E8956654730316e36eDBE|...|FINALIZED|UNVERIFIABLE|{"authority":"UNKNOWN","duplicate":"UNKNOWN","identity":"UNKNOWN","image":"UNKNOWN","misleading":"UNKNOWN","source":"UNAVAILABLE","traits":"UNKNOWN"}
-get_verification(1) -> 1|0x736A168247e3f0C52F7907c9a8fDac572DF9c8bB|...|FINALIZED|UNVERIFIABLE|{"authority":"UNKNOWN","duplicate":"UNKNOWN","identity":"UNKNOWN","image":"UNKNOWN","misleading":"UNKNOWN","source":"UNAVAILABLE","traits":"UNKNOWN"}
-get_counts() -> 2|2|2
+lookup_snapshot(3,101) -> 0
+lookup_snapshot(4,202) -> 1
+get_snapshot(0) -> 3|101|ipfs://bafybeifrozenmetadatafixture000000000000000000000000000000001|...|FROZEN|0
+get_snapshot(1) -> 4|202|ipfs://bafybeifrozenmetadatafixture000000000000000000000000000000001|...|FROZEN|0
+get_verification(0) -> 0|0xA63DE24e30C88FB1019E8956654730316e36eDBE|ipfs://bafybeifrozenmetadatafixture000000000000000000000000000000001|FINALIZED|UNVERIFIABLE|{"authority":"UNKNOWN","duplicate":"UNKNOWN","identity":"UNKNOWN","image":"UNKNOWN","misleading":"UNKNOWN","reference_hash_matches":"UNKNOWN","reference_source_authenticated":"TRUE","source":"UNAVAILABLE","traits":"UNKNOWN"}
+get_verification(1) -> 1|0x736A168247e3f0C52F7907c9a8fDac572DF9c8bB|ipfs://bafybeifrozenmetadatafixture000000000000000000000000000000001|FINALIZED|UNVERIFIABLE|{"authority":"UNKNOWN","duplicate":"UNKNOWN","identity":"UNKNOWN","image":"UNKNOWN","misleading":"UNKNOWN","reference_hash_matches":"UNKNOWN","reference_source_authenticated":"TRUE","source":"UNAVAILABLE","traits":"UNKNOWN"}
+get_counts() -> 5|2|2
 ```
 
-`UNVERIFIABLE` is the intended terminal result for this fixture: the contract
-correctly preserves an unavailable source as an explicit bounded outcome rather than
-guessing `VERIFIED` or treating a finalized transaction as semantic success. The
-registration, freeze, authorization-by-creator, direct lookup, submission and
-consensus lifecycle all passed.
+The contract independently recorded `reference_source_authenticated=TRUE` for the
+immutable reference identifier. The provider could not fetch the source, so
+`source=UNAVAILABLE`, `reference_hash_matches=UNKNOWN`, and the deterministic
+terminal verdict was `UNVERIFIABLE`. This is valid fail-closed negative proof; it
+is not a `VERIFIED` semantic proof.
 
-This Pinata result is retained as evidence that the contract fails closed. It must be
-reported as `source=UNAVAILABLE -> verdict=UNVERIFIABLE`, not relabeled as a provider
-or parser success.
+## Semantic and adversarial matrix
+
+The matrix ran on the exact deployment. The provider could not fetch the IPFS
+fixtures, so both semantic branches correctly settled as `UNVERIFIABLE`.
+
+| Scenario | Transaction | Result |
+| --- | --- | --- |
+| Register semantic collection (ID 5) | `0x90a8e64226a684238705129baaff4b6e63104feed14ea589c5646a737ebd08bb` | ID `5`, FINALIZED |
+| Unauthorized freeze | `0x992881412e79fec60993c7d857de08207c06d5b08c5a414a3aba63b98834a2dc` | `CREATOR_ONLY` |
+| Freeze semantic collection | `0x75ae9abfca751c9a3306d9264cb0dc1f31430ccca1249ce35fdee814a202b044` | `FROZEN` |
+| Register snapshot 303 | `0x667e7cdfd590990433be000cf3c9e3e6da8854453f1b6aaebbed007059573fd6` | ID `2`, FINALIZED |
+| Register snapshot 304 | `0x567c4caae4114f57c69e9b1832791c7e28b305b36558ca07914e33b28a12cca1` | ID `3`, FINALIZED |
+| Duplicate snapshot 303 | `0xfc78df69f139a7f3481bd4f269067781ab9bdef85373ca1e28a3cc2ecc67da12` | `SNAPSHOT_ALREADY_EXISTS` |
+| Freeze snapshot 303 | `0xe567a00796bbc8ef6d7d2cecaa40a315e4688d0680db70a5c43d98be99f70411` | `FROZEN` |
+| Freeze snapshot 304 | `0xa152176cb503f4d63df557ad0461e2bfb5c76a523b62b1bfb970e7a3c71c3db0` | `FROZEN` |
+| Submit verified candidate (ID 2) | `0x1aec2cbdf71baddeef94eb90201a583256581ad3244ee5b6f38fa7253d777bd3` | ID `2`, FINALIZED |
+| Submit changed candidate (ID 3) | `0x03e8a182ead0aaa52ef6b1946d374c7ce14288e366f325880f0ac6476f229118` | ID `3`, FINALIZED |
+| Verify candidate 2 | `0x16bc84bd7e5e0364f0bd0c68857c80ba907a1c39478b78a4bb98d0a4d940cb40` | `UNVERIFIABLE`, FINALIZED |
+| Verify candidate 3 | `0x320b38e43c3e0f96bedbf49019023cb06dfe04e184caa8ad5bfd6d254acfb1e7` | `UNVERIFIABLE`, FINALIZED |
+
+Authoritative readbacks:
+
+```text
+get_verification(2) -> ...|FINALIZED|UNVERIFIABLE|{"authority":"UNKNOWN","duplicate":"UNKNOWN","identity":"UNKNOWN","image":"UNKNOWN","misleading":"UNKNOWN","reference_hash_matches":"UNKNOWN","reference_source_authenticated":"TRUE","source":"UNAVAILABLE","traits":"UNKNOWN"}
+get_verification(3) -> ...|FINALIZED|UNVERIFIABLE|{"authority":"UNKNOWN","duplicate":"UNKNOWN","identity":"UNKNOWN","image":"UNKNOWN","misleading":"UNKNOWN","reference_hash_matches":"UNKNOWN","reference_source_authenticated":"TRUE","source":"UNAVAILABLE","traits":"UNKNOWN"}
+get_snapshot(2) -> 5|303|...|FROZEN|1
+get_snapshot(3) -> 5|304|...|FROZEN|1
+```
+
+The semantic fixture branches therefore record:
+
+```text
+LIVE_UNVERIFIABLE_NEGATIVE_PASS: PASS
+SEMANTIC_VERIFIED_PASS: NOT RUN
+SEMANTIC_CHANGED_PASS: NOT PROVEN (provider unavailable)
+UNAUTHORIZED/DUPLICATE LIVE MATRIX: PASS
+E2E COMPLETION GATE: PARTIAL
+```
+
+Do not describe this release as proving `VERIFIED` and `CHANGED` semantics until
+the same scenarios run with a provider-fetchable immutable fixture.

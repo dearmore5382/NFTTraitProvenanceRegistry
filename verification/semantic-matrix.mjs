@@ -10,14 +10,16 @@ const read = createClient({ chain: studionet, endpoint: env.RPC_URL });
 const wa = createClient({ chain: studionet, endpoint: env.RPC_URL, account: a });
 const wb = createClient({ chain: studionet, endpoint: env.RPC_URL, account: b });
 const address = env.CONTRACT_ADDRESS;
-const authority = "https://gateway.pinata.cloud/ipfs/";
-const manifest = "https://gateway.pinata.cloud/ipfs/QmTqXy36wxN5rNwtsSpPd1PjhTUMuHCybc7NFGVjZe4jcY";
-const verifiedRef = manifest;
-const verifiedCurrent = "https://gateway.pinata.cloud/ipfs/QmV5wyRT1UpmgrAB5UFQLcAmHoiT8tCmF6qgdJ5urg8WXV";
-const changedRef = "https://gateway.pinata.cloud/ipfs/QmSq8wLCr4pJyFsBJ94d6HP9Ff5WgJA2ae5sFxdY5uF7wY";
-const changedCurrent = "https://gateway.pinata.cloud/ipfs/QmatxPYpvdbvrWH2utMh4eobcDXS9XqXJBJhoriSCdVpGb";
-const hash = "sha256:7f3b2d2a2d1f8c8f0c3b4f6a8e9d0b1c2a3e4f5b6c7d8e9f0011223344556677";
-const nft = "0x3333333333333333333333333333333333333333";
+const commit = "f54e331ecd9745e028861a43ea6054c129b53231";
+const base = `https://raw.githubusercontent.com/dearmore5382/NFTTraitProvenanceRegistry/${commit}/verification/fixtures/`;
+const authority = base + "verified-reference.json";
+const manifest = base + "verified-reference.json";
+const verifiedRef = base + "verified-reference.json";
+const verifiedCurrent = base + "verified-current.json";
+const changedRef = base + "changed-reference.json";
+const changedCurrent = base + "changed-current.json";
+const hash = "sha256:4c94e3d576c7a73986e6af6719fe8b84d169a9793ecd8d8af9b89b4087836b3c";
+const nft = "0x5A880B5Ee30E2A3A24E5DaF4b084dc0A4c3fC75c";
 
 async function view(method, args) { const value = await read.readContract({ address, functionName: method, args, stateStatus: "accepted" }); console.log(`${method}(${args.join(",")}) -> ${value}`); return String(value); }
 async function tx(client, label, method, args) { const hashTx = await client.writeContract({ address, functionName: method, args, value: 0n }); console.log(`${label} tx ${hashTx}`); const receipt = await read.waitForTransactionReceipt({ hash: hashTx, status: TransactionStatus.FINALIZED, retries: 120, interval: 3000, fullTransaction: true }); const result = receipt.consensus_data?.leader_receipt?.[0]?.result?.payload?.readable || receipt.result_name || "UNKNOWN"; console.log(`${label} ${receipt.statusName || "FINALIZED"} result=${result}`); return { hash: hashTx, result: String(result) }; }
@@ -32,7 +34,8 @@ await tx(wa, "freeze-semantic-collection", "freeze_collection", [collection]);
 const traits303 = JSON.stringify({ background: "Ink", edition: "1/1", palette: "Cobalt" });
 const traits304 = JSON.stringify({ rarity: "Legendary", edition: "1/1", palette: "Gold" });
 const snapshot303 = await tx(wa, "snapshot-303", "register_snapshot", [collection, 303n, verifiedRef, hash, "ipfs://bafybeiverifiedimagecid000000000000000000000000000000001", traits303]);
-const snapshot304 = await tx(wa, "snapshot-304", "register_snapshot", [collection, 304n, changedRef, hash, "ipfs://bafybeioriginalimagecid000000000000000000000000000000001", traits304]);
+const changedHash = "sha256:0f6c265ffa4a5292e5d5cee9bcbebff2350be53a3e1237518389f1590c05fe38";
+const snapshot304 = await tx(wa, "snapshot-304", "register_snapshot", [collection, 304n, changedRef, changedHash, "ipfs://bafybeioriginalimagecid000000000000000000000000000000001", traits304]);
 const duplicate = await tx(wa, "duplicate-snapshot", "register_snapshot", [collection, 303n, verifiedRef, hash, "ipfs://duplicate", traits303]);
 if (!duplicate.result.includes("SNAPSHOT_ALREADY_EXISTS")) throw new Error(`expected SNAPSHOT_ALREADY_EXISTS, got ${duplicate.result}`);
 const snapshotId303 = idOf(snapshot303);

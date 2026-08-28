@@ -18,6 +18,10 @@ def test_nondeterminism_is_consensus_wrapped():
     assert "gl.eq_principle.strict_eq(inspect)" in SOURCE
     assert SOURCE.count("gl.nondet.web.get") == 2
     assert SOURCE.count("gl.nondet.exec_prompt") == 1
+    assert '"https://arweave.net/" + text[5:]' in SOURCE
+    assert '"https://gateway.pinata.cloud/ipfs/" + text[7:]' in SOURCE
+    assert "raw.githubusercontent.com" in SOURCE
+    assert "cdn.jsdelivr.net/gh" in SOURCE
 
 
 def test_direct_snapshot_index_avoids_historical_scan():
@@ -45,4 +49,5 @@ def test_bounded_facts_drive_deterministic_verdict():
     assert 'verdict = "VERIFIED"' in SOURCE
     assert 'verdict = "CHANGED"' in SOURCE
     assert 'verdict = "UNVERIFIABLE"' in SOURCE
-
+    assert "reference_source_authenticated" in SOURCE
+    assert "reference_hash_matches != \"TRUE\"" not in SOURCE

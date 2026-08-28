@@ -10,7 +10,7 @@ const read = createClient({ chain: studionet, endpoint: env.RPC_URL });
 const clientA = createClient({ chain: studionet, endpoint: env.RPC_URL, account: accountA });
 const clientB = createClient({ chain: studionet, endpoint: env.RPC_URL, account: accountB });
 const address = env.CONTRACT_ADDRESS;
-const source = "https://raw.githubusercontent.com/dearmore5382/DAOProposalContextVerifier/main/README.md";
+const source = "ar://lENTclDMqXNznenEPXV9jKJyqHPTomehGVCiXW7zMrw";
 const hash = "sha256:7f3b2d2a2d1f8c8f0c3b4f6a8e9d0b1c2a3e4f5b6c7d8e9f0011223344556677";
 const nftA = "0x1111111111111111111111111111111111111111";
 const nftB = "0x2222222222222222222222222222222222222222";
@@ -35,29 +35,29 @@ console.log(`creatorA=${accountA.address}`);
 console.log(`creatorB=${accountB.address}`);
 await view("get_counts", []);
 
-await tx(clientA, "collection-A", "register_collection", ["Ink Archive A", "Ethereum mainnet", nftA, source, source, hash]);
-await tx(clientB, "collection-B", "register_collection", ["Ink Archive B", "Ethereum mainnet", nftB, source, source, hash]);
-await tx(clientA, "freeze-collection-A", "freeze_collection", [0n]);
-await tx(clientB, "freeze-collection-B", "freeze_collection", [1n]);
+const collectionA = BigInt((await tx(clientA, "collection-A", "register_collection", ["Ink Archive A", "Ethereum mainnet", nftA, source, source, hash])).result.match(/\d+/)[0]);
+const collectionB = BigInt((await tx(clientB, "collection-B", "register_collection", ["Ink Archive B", "Ethereum mainnet", nftB, source, source, hash])).result.match(/\d+/)[0]);
+await tx(clientA, "freeze-collection-A", "freeze_collection", [collectionA]);
+await tx(clientB, "freeze-collection-B", "freeze_collection", [collectionB]);
 
 const traitsA = JSON.stringify({ background: "ink", edition: "1/1", palette: "cobalt" });
 const traitsB = JSON.stringify({ background: "paper", edition: "1/1", palette: "orange" });
-await tx(clientA, "snapshot-A", "register_snapshot", [0n, 101n, source, hash, "ipfs://bafyimage-a", traitsA]);
-await tx(clientB, "snapshot-B", "register_snapshot", [1n, 202n, source, hash, "ipfs://bafyimage-b", traitsB]);
-await tx(clientA, "freeze-snapshot-A", "freeze_snapshot", [0n]);
-await tx(clientB, "freeze-snapshot-B", "freeze_snapshot", [1n]);
+const snapshotA = BigInt((await tx(clientA, "snapshot-A", "register_snapshot", [collectionA, 101n, source, hash, "ipfs://bafyimage-a", traitsA])).result.match(/\d+/)[0]);
+const snapshotB = BigInt((await tx(clientB, "snapshot-B", "register_snapshot", [collectionB, 202n, source, hash, "ipfs://bafyimage-b", traitsB])).result.match(/\d+/)[0]);
+await tx(clientA, "freeze-snapshot-A", "freeze_snapshot", [snapshotA]);
+await tx(clientB, "freeze-snapshot-B", "freeze_snapshot", [snapshotB]);
 
-await view("lookup_snapshot", [0n, 101n]);
-await view("lookup_snapshot", [1n, 202n]);
-await view("get_snapshot", [0n]);
-await view("get_snapshot", [1n]);
+await view("lookup_snapshot", [collectionA, 101n]);
+await view("lookup_snapshot", [collectionB, 202n]);
+await view("get_snapshot", [snapshotA]);
+await view("get_snapshot", [snapshotB]);
 
-await tx(clientB, "submit-check-A", "submit_verification", [0n, source]);
-await tx(clientA, "submit-check-B", "submit_verification", [1n, source]);
-await tx(clientA, "verify-A", "verify_metadata", [0n]);
-await tx(clientB, "verify-B", "verify_metadata", [1n]);
+const verificationA = BigInt((await tx(clientB, "submit-check-A", "submit_verification", [snapshotA, source])).result.match(/\d+/)[0]);
+const verificationB = BigInt((await tx(clientA, "submit-check-B", "submit_verification", [snapshotB, source])).result.match(/\d+/)[0]);
+await tx(clientA, "verify-A", "verify_metadata", [verificationA]);
+await tx(clientB, "verify-B", "verify_metadata", [verificationB]);
 
-await view("get_verification", [0n]);
-await view("get_verification", [1n]);
+await view("get_verification", [verificationA]);
+await view("get_verification", [verificationB]);
 await view("get_counts", []);
 console.log("E2E COMPLETE");

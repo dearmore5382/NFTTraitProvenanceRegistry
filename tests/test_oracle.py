@@ -9,6 +9,7 @@ BASE = {
     "image": "SAME",
     "duplicate": "NONE",
     "misleading": "NO",
+    "reference_source_authenticated": "TRUE",
 }
 
 
@@ -39,6 +40,7 @@ def test_unavailable_and_unknown_are_unverifiable():
     assert derive(changed(source="UNAVAILABLE")) == "UNVERIFIABLE"
     for key in ("authority", "identity", "traits", "image", "duplicate", "misleading"):
         assert derive(changed(**{key: "UNKNOWN"})) == "UNVERIFIABLE"
+    assert derive(changed(reference_source_authenticated="FALSE")) == "UNVERIFIABLE"
 
 
 def test_invalid_output_is_rejected():
@@ -46,4 +48,3 @@ def test_invalid_output_is_rejected():
     incomplete = dict(BASE)
     incomplete.pop("traits")
     assert derive(incomplete) == "INVALID_CONSENSUS_OUTPUT"
-
